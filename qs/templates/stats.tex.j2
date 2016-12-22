@@ -1,0 +1,41 @@
+\documentclass[a4paper, landscape, 10pt]{article}
+
+\usepackage[top=1cm, bottom=1cm, left=1cm, right=1cm]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\begin{document}
+
+\tiny
+
+{% for student in students %}
+  \begin{minipage}{\textwidth}
+    { \bf
+    \begin{tabular}{|c|*{4}{c|}}
+    \hline
+      {{ student.name }} & Note : {{ student.note }} & Rang : {{ student.rang }} & Moyenne : {{ general.avg }} & \'Ecart-type : {{ general.std }} \\
+    \hline
+    \end{tabular}
+    }
+    {% for exo, data in student.exercices.items() %}
+      \begin{tabular}{|l|*{ {{ data.bar.title | length }} }{c|}}
+        \hline
+        & \multicolumn{ {{ data.bar.title | length }} }{c|}{ {{ exo }} } \\
+        \hline
+        Questions & {{ data.bar.title | join('&') }} \\
+        \hline
+        Barème & {{ data.bar.points | join('&') }} \\
+        \hline
+        Sur la copie & {{ data.raw | join('&') }} \\
+        \hline
+        En réalité & {{ data.corrected | join('&') }} \\
+        \hline
+      \end{tabular}
+    {% endfor %}
+  \end{minipage}
+  \vspace{0.3cm}
+  \hrule
+  \vspace{0.3cm}
+{% endfor %}
+
+\end{document}
