@@ -13,25 +13,38 @@
     { \bf
     \begin{tabular}{|c|*{4}{c|}}
     \hline
-      {{ student.name }} & Note : {{ student.note }} & Rang : {{ student.rang }} & Moyenne : {{ general.avg }} & \'Ecart-type : {{ general.std }} \\
+      {{ student.name }} & Note : {{ student.note }} & Rang : {{ loop.index }} & Moyenne : {{ general.avg }} & \'Ecart-type : {{ general.std }} \\
     \hline
     \end{tabular}
     }
+
+    \begin{tabular}{|l|*{ {{ general.max_questions }} }{c|}}
     {% for exo, data in student.exercices.items() %}
-      \begin{tabular}{|l|*{ {{ data.bar.title | length }} }{c|}}
         \hline
-        & \multicolumn{ {{ data.bar.title | length }} }{c|}{ {{ exo }} } \\
+        & \multicolumn{ {{ general.max_questions }} }{c|}{ {{ exo }} } \\
         \hline
-        Questions & {{ data.bar.title | join('&') }} \\
-        \hline
-        Barème & {{ data.bar.points | join('&') }} \\
-        \hline
-        Sur la copie & {{ data.raw | join('&') }} \\
-        \hline
-        En réalité & {{ data.corrected | join('&') }} \\
-        \hline
-      \end{tabular}
+        Questions & {{ data.bar.title | join('&') }} 
+        {% if data.bar.extra > 0 %} & \multicolumn{ {{ data.bar.extra }} }{c}{} {% endif %} \\ 
+        \cline{1-{{ data.bar.title | length + 1 }} }
+        
+        % {{ data.bar.extra }} {{ general.max_questions }} {{ data.bar.title | length }}
+
+        Réussite & {{ data.bar.success | join('&') }} 
+        {% if data.bar.extra > 0 %} & \multicolumn{ {{ data.bar.extra }} }{c}{} {% endif %} \\
+        \cline{1-{{ data.bar.title | length + 1 }} }
+
+
+        Barème & {{ data.bar.points | join('&') }} 
+        {% if data.bar.extra > 0 %} & \multicolumn{ {{ data.bar.extra }} }{c}{} {% endif %} \\
+        \cline{1-{{ data.bar.title | length + 1 }} }
+        Sur la copie & {{ data.raw | join('&') }} 
+        {% if data.bar.extra > 0 %} & \multicolumn{ {{ data.bar.extra }} }{c}{} {% endif %} \\
+        \cline{1-{{ data.bar.title | length + 1 }} }
+        En réalité & {{ data.corrected | join('&') }} 
+        {% if data.bar.extra > 0 %} & \multicolumn{ {{ data.bar.extra }} }{c}{} {% endif %} \\
     {% endfor %}
+    \hline
+    \end{tabular}
   \end{minipage}
   \vspace{0.3cm}
   \hrule

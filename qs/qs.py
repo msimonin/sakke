@@ -14,8 +14,10 @@ import os
 import json
 from docopt import docopt
 from jinja2 import Environment, FileSystemLoader
+import operator
 
 NOTE=20
+TOTAL=4
 QS_PATH = os.path.dirname(os.path.realpath(__file__))
 TEMPLATES_DIR = os.path.join(QS_PATH, 'templates')
 
@@ -60,22 +62,25 @@ def main(exercices_baremes):
     general = {
         'total': 0}
     for exo, bareme in files.items():
+        exoname = os.path.basename(exo).split('.')[0].replace('_', '-')
         with open(bareme) as baremefile:
             # bareme should only contains two lines
             reader = list(csv.reader(baremefile, delimiter=','))
-            bar.setdefault(exo, {})
-            bar[exo]['title'] = reader[0]
-            bar[exo]['points'] = clean(reader[1])
-            bar[exo]['total'] = sum(bar[exo]['points'])
+            bar.setdefault(exoname, {})
+            bar[exoname]['title'] = reader[0]
+            bar[exoname]['points'] = clean(reader[1])
+            bar[exoname]['total'] = sum(bar[exoname]['points'])
+            bar[exoname]['sum'] = [0]*len(bar[exoname]['title'])
+
             # filling the general
-            general['total'] = general['total'] + bar[exo]['total']
+            general['total'] = general['total'] + bar[exoname]['total']
             # max_questions
             general.setdefault('max_questions', len(reader[0]))
             if general['max_questions'] < len(reader[0]):
                 general['max_questions'] = len(reader[0])
+
         with open(exo) as exofile:
             reader = csv.reader(exofile, delimiter=',')
-            exoname = os.path.basename(exo).split('.')[0].replace('_', '-')
             for row in reader:
                 name = ' '.join(row[0:2]).decode('UTF-8')
                 students.setdefault(name, {})
@@ -86,18 +91,22 @@ def main(exercices_baremes):
                 # set raw results
                 students[name]['exercices'].setdefault(exoname, {})
                 students[name]['exercices'][exoname].setdefault('raw', raw)
+                # update success 
+                bar[exoname]["sum"] = map(operator.add, bar[exoname]["sum"], raw)
                 # compute corrected result 
-                for i in range(len(bar[exo]['title'])):
-                    corrected[i] = raw[i] * bar[exo]['points'][i] / 4
+                for i in range(len(bar[exoname]['title'])):
+                    corrected[i] = raw[i] * bar[exoname]['points'][i] / TOTAL
                 students[name]['exercices'][exoname].setdefault('corrected', corrected)
                 # compute the sum
                 s = sum(corrected)    
                 students[name]['exercices'][exoname].setdefault('sum', s)
                 # compute the note
-                note = s/bar[exo]['total'] * NOTE
+                note = s/bar[exoname]['total'] * NOTE
                 students[name]['exercices'][exoname].setdefault('note', note)
                 # repeating the bareme
-                students[name]['exercices'][exoname].setdefault('bar', bar[exo])
+                students[name]['exercices'][exoname].setdefault('bar', bar[exoname])
+                # number of extra columns 
+                students[name]['exercices'][exoname]['bar']['extra'] = general['max_questions'] - len(bar[exoname]['title'])
                 # filling student general  
                 students[name].setdefault('sum', 0)
                 students[name]['sum'] = s + students[name]['sum']
@@ -105,13 +114,19 @@ def main(exercices_baremes):
                 students[name]['note'] = round(students[name]['sum']/general['total']*NOTE, 1)
                 students[name]['total'] = general['total']
     
-    general['raw'] = numpy.array(list(map(lambda e: e['note'], students.values())))
-    general['avg'] = round(numpy.mean(general['raw']), 1)
-    general['std'] = round(numpy.std(general['raw']), 1)
+
+    # update success
+    for exoname, data in bar.items():
+        data["success"] = map( lambda x: round(100*x/(TOTAL*len(students.values()))), data["sum"])
+
+    general['notes'] = numpy.array(list(map(lambda e: e['note'], students.values())))
+    general['avg'] = round(numpy.mean(general['notes']), 1)
+    general['std'] = round(numpy.std(general['notes']), 1)
+
 
     env = Environment(loader=FileSystemLoader(searchpath=TEMPLATES_DIR))
     template = env.get_template('stats.tex.j2')
-    rendered_text = template.render(students=students.values(), general=general, bar=bar)
+    rendered_text = template.render(students=sorted(students.values(), key=operator.itemgetter('note'), reverse=True), general=general, bar=bar)
 
     with open('out.tex', 'w') as f:
         f.write(rendered_text.encode('UTF-8'))
