@@ -3,6 +3,22 @@ SaKKe  :gift:
 
 SaKKe est un utilitaire simple de génération de statistiques de devoirs.
 
+Installation
+-------------
+
+
+.. code-block:: bash
+
+  pip install sakke
+
+ou
+
+.. code-block:: bash
+
+  sudo pip install sakke
+
+Si votre installation de python nécessite les droits :code:`root`.
+
 Usage et hypothèses
 ----------------------
 
@@ -32,9 +48,3 @@ Sortie
 -------
 
 Un fichier  :code:`out.tex` compilable avec pdflatex.
-   
-    
-
-
-
-
