@@ -1,6 +1,6 @@
-"""qs: utilitaire de statistiques de devoirs
+"""SaKKe: utilitaire de statistiques de devoirs
 
-usage: qs <exercice:bareme> ...
+usage: sakke <exercice:bareme> ...
 
 Options:
   -h --help      Show this help message.
@@ -19,8 +19,8 @@ import operator
 
 NOTE=20
 TOTAL=4
-QS_PATH = os.path.dirname(os.path.realpath(__file__))
-TEMPLATES_DIR = os.path.join(QS_PATH, 'templates')
+SAKKE_PATH = os.path.dirname(os.path.realpath(__file__))
+TEMPLATES_DIR = os.path.join(SAKKE_PATH, 'templates')
 
 def clean(l):
     def el_clean(e):
