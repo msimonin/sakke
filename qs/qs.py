@@ -14,6 +14,7 @@ import os
 import json
 from docopt import docopt
 from jinja2 import Environment, FileSystemLoader
+from . import __version__
 import operator
 
 NOTE=20
@@ -30,7 +31,9 @@ def clean(l):
 
     return list(map(el_clean, l))
 
-def main(exercices_baremes):
+def main():
+    arguments = docopt(__doc__, version=__version__)
+    exercices_baremes = arguments['<exercice:bareme>']
     if len(exercices_baremes) < 1:
         sys.exit(0)
 
@@ -118,20 +121,26 @@ def main(exercices_baremes):
     # update success
     for exoname, data in bar.items():
         data["success"] = map( lambda x: round(100*x/(TOTAL*len(students.values()))), data["sum"])
+    
+    # update rank
+    ranked = sorted(students.values(), key=operator.itemgetter('note'), reverse=True)
+    for i in range(len(ranked)):
+        ranked[i]["rank"] = i+1
 
     general['notes'] = numpy.array(list(map(lambda e: e['note'], students.values())))
     general['avg'] = round(numpy.mean(general['notes']), 1)
     general['std'] = round(numpy.std(general['notes']), 1)
 
-
+    
     env = Environment(loader=FileSystemLoader(searchpath=TEMPLATES_DIR))
     template = env.get_template('stats.tex.j2')
-    rendered_text = template.render(students=sorted(students.values(), key=operator.itemgetter('note'), reverse=True), general=general, bar=bar)
+    rendered_text = template.render(students=ranked, general=general, bar=bar)
 
     with open('out.tex', 'w') as f:
         f.write(rendered_text.encode('UTF-8'))
 
     
 if __name__ == '__main__':
-    arguments = docopt(__doc__, version=0.1)
-    main(arguments['<exercice:bareme>'])
+    #arguments = docopt(__doc__, version=0.1)
+    #(arguments['<exercice:bareme>'])
+    main()
