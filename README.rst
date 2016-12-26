@@ -14,6 +14,12 @@ Installation
 Usage et hypothèses
 ----------------------
 
+Afficher l'aide : 
+
+.. code-block:: bash
+
+  sakke --help
+
 Les questions des exercices sont notées par défaut sur 4.
 Un fichier de barème ajuste la note finale.
 
