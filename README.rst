@@ -9,15 +9,7 @@ Installation
 
 .. code-block:: bash
 
-  pip install sakke
-
-ou
-
-.. code-block:: bash
-
-  sudo pip install sakke
-
-Si votre installation de python nécessite les droits :code:`root`.
+  [sudo] pip install sakke [--user]
 
 Usage et hypothèses
 ----------------------
