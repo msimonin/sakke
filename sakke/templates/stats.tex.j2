@@ -11,9 +11,9 @@
 {% for student in students %}
   \begin{minipage}{\textwidth}
     { \bf
-    \begin{tabular}{|c|*{4}{c|}}
+    \begin{tabular}{|c|*{5}{c|}}
     \hline
-      {{ student.name }} & Note : {{ student.note }} & Rang : {{ student.rank }} & Moyenne : {{ general.avg }} & \'Ecart-type : {{ general.std }} \\
+      {{general.name}} & {{ student.name }} & Note : {{ student.note }} & Rang : {{ student.rank }} & Moyenne : {{ general.avg }} & \'Ecart-type : {{ general.std }} \\
     \hline
     \end{tabular}
     }

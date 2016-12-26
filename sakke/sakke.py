@@ -1,10 +1,11 @@
 """SaKKe: utilitaire de statistiques de devoirs
 
-usage: sakke <exercice:bareme> ...
+usage: sakke [--name=<name>] <exercice:bareme> ...
 
 Options:
-  -h --help      Show this help message.
-  exercice:bareme path the the exercice/bareme separated by :
+  -h --help       Montre l'aide
+  --name=<name>   Nom du devoir. [default: -]
+  exercice:bareme Chemin vers les exercice/bareme separés par :
 """
 import csv
 import sys
@@ -33,7 +34,9 @@ def clean(l):
 
 def main():
     arguments = docopt(__doc__, version=__version__)
+    print(arguments)
     exercices_baremes = arguments['<exercice:bareme>']
+    name = arguments['--name']
     if len(exercices_baremes) < 1:
         sys.exit(0)
 
@@ -63,7 +66,9 @@ def main():
 #
 #
     general = {
+        'name': name,
         'total': 0}
+
     for exo, bareme in files.items():
         exoname = os.path.basename(exo).split('.')[0].replace('_', '-')
         with open(bareme) as baremefile:
