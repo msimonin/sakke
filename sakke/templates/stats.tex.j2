@@ -1,4 +1,4 @@
-\documentclass[a4paper, landscape, 10pt]{article}
+\documentclass[{{ options.latex_documentclass_options }}]{article}
 
 \usepackage[top=1cm, bottom=1cm, left=1cm, right=1cm]{geometry}
 \usepackage[utf8]{inputenc}
@@ -6,7 +6,7 @@
 
 \begin{document}
 
-\tiny
+\{{ options.latex_font_size }}
 
 {% for student in results.students %}
   \begin{minipage}{\textwidth}

@@ -1,13 +1,17 @@
 """SaKKe: utilitaire de statistiques de devoirs
 
-usage: sakke [--name=<name>] [--transform=<transform>] <exercice:bareme> ...
+usage: sakke [--name=<name>] [--transform=<transform>] [--option=<name:value> ...] <exercice:bareme> ...
 
 Options:
   -h --help       Montre l'aide
   --name=<name>   Nom du devoir. [default: -]
   --transform=<transform>   Transformation à appliquer sur la note finale.
-                            C'est une expression x représente la note.
+                            C'est une expression où x représente la note.
                             [default: x]
+  --option=<name:value>     Option pour le rendu. Peut-être répétée.
+                            Valeurs par défaut des options suportées
+                                * latex_documentclass_options:a4paper,10pt,landscape
+                                * latex_font_size:tiny
   exercice:bareme Chemin vers les exercice/bareme separés par :
 
 """
@@ -27,6 +31,12 @@ TOTAL=4
 SAKKE_PATH = os.path.dirname(os.path.realpath(__file__))
 TEMPLATES_DIR = os.path.join(SAKKE_PATH, 'templates')
 
+OPTIONS = {
+    "latex_documentclass_options" : "a4paper,10pt,landscape",
+    "latex_font_size": "tiny"
+}
+
+
 def clean(l):
     def el_clean(e):
         # replace hypothetic ',' by ','
@@ -42,6 +52,11 @@ def main():
     exercices_baremes = arguments['<exercice:bareme>']
     name = arguments['--name']
     transform = lambda x: eval(arguments['--transform'])
+    # construction des options
+    options = {}
+    options.update(OPTIONS)
+    options.update(dict(map(lambda x: x.split(':'), arguments['--option'])))
+    print(options)
     if len(exercices_baremes) < 1:
         sys.exit(0)
 
@@ -150,7 +165,7 @@ def main():
     # Rendering tex 
     env = Environment(loader=FileSystemLoader(searchpath=TEMPLATES_DIR))
     template = env.get_template('stats.tex.j2')
-    rendered_text = template.render(results=results)
+    rendered_text = template.render(results=results, options=options)
     with open('out.tex', 'w') as f:
         f.write(rendered_text.encode('UTF-8'))
     
