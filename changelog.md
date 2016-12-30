@@ -1,6 +1,7 @@
 ## 0.0.4
 
   * ajoute l'option `--option`
+  * ajoute le total pour chaque exercice du barème et de l'étudiant
 
 ## 0.0.3
   

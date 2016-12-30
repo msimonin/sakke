@@ -11,6 +11,7 @@ Options:
   --option=<name:value>     Option pour le rendu. Peut-être répétée.
                             Valeurs par défaut des options suportées
                                 * latex_documentclass_options:a4paper,10pt,landscape
+                                * latex_geometry_options:top=1cm,right=1cm,bottom=1cm,left=1cm
                                 * latex_font_size:tiny
   exercice:bareme Chemin vers les exercice/bareme separés par :
 
@@ -33,7 +34,8 @@ TEMPLATES_DIR = os.path.join(SAKKE_PATH, 'templates')
 
 OPTIONS = {
     "latex_documentclass_options" : "a4paper,10pt,landscape",
-    "latex_font_size": "tiny"
+    "latex_font_size": "tiny",
+    "latex_geometry_options": "top=1cm,right=1cm,bottom=1cm,left=1cm"
 }
 
 

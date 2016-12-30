@@ -1,6 +1,5 @@
 \documentclass[{{ options.latex_documentclass_options }}]{article}
-
-\usepackage[top=1cm, bottom=1cm, left=1cm, right=1cm]{geometry}
+\usepackage[{{ options.latex_geometry_options }}]{geometry}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 
@@ -18,30 +17,33 @@
     \end{tabular}
     }
 
-    \begin{tabular}{|l|*{ {{ results.general.max_questions }} }{c|}}
+    \begin{tabular}{|l|*{ {{ results.general.max_questions + 1 }} }{c|}}
     {% for exo, data in student.exercices.items() %}
         \hline
-        & \multicolumn{ {{ results.general.max_questions }} }{c|}{ {{ exo }} } \\
+        % nom de l'exercice
+        & \multicolumn{ {{ results.general.max_questions + 1 }} }{c|}{ {{ exo }} } \\
         \hline
+        
         Questions & {{ data.bar.title | join('&') }} 
-        {% if data.bar.extra > 0 %} & \multicolumn{ {{ data.bar.extra }} }{c}{} {% endif %} \\ 
+        & \multicolumn{ {{ data.bar.extra + 1 }} }{c}{}\\ 
         \cline{1-{{ data.bar.title | length + 1 }} }
         
         % {{ data.bar.extra }} {{ results.general.max_questions }} {{ data.bar.title | length }}
 
         Réussite & {{ data.bar.success | join('&') }} 
-        {% if data.bar.extra > 0 %} & \multicolumn{ {{ data.bar.extra }} }{c}{} {% endif %} \\
+        & \multicolumn{ {{ data.bar.extra + 1 }} }{c}{}\\
         \cline{1-{{ data.bar.title | length + 1 }} }
 
-
-        Barème & {{ data.bar.points | join('&') }} 
-        {% if data.bar.extra > 0 %} & \multicolumn{ {{ data.bar.extra }} }{c}{} {% endif %} \\
+        Barème & {{ data.bar.points | join('&') }} & \multicolumn{1}{c}{ {{ data.bar.points | sum }} }
+        {% if data.bar.extra > 0 %} & \multicolumn{ {{ data.bar.extra }} }{c}{} {% endif %}\\
         \cline{1-{{ data.bar.title | length + 1 }} }
+
         Sur la copie & {{ data.raw | join('&') }} 
-        {% if data.bar.extra > 0 %} & \multicolumn{ {{ data.bar.extra }} }{c}{} {% endif %} \\
+        & \multicolumn{ {{ data.bar.extra + 1 }} }{c}{}\\
         \cline{1-{{ data.bar.title | length + 1 }} }
-        En réalité & {{ data.corrected | join('&') }} 
-        {% if data.bar.extra > 0 %} & \multicolumn{ {{ data.bar.extra }} }{c}{} {% endif %} \\
+
+        En réalité & {{ data.corrected | join('&') }}  & \multicolumn{1}{c}{ {{ data.corrected | sum }} }
+        {% if data.bar.extra > 0 %} & \multicolumn{ {{ data.bar.extra }} }{c}{} {% endif %}\\
     {% endfor %}
     \hline
     \end{tabular}
