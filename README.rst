@@ -9,7 +9,8 @@ Installation
 
 .. code-block:: bash
 
-  [sudo] pip install sakke [--user]
+  [sudo] pip install -U sakke [--user]
+  
 
 Usage et hypothèses
 ----------------------
@@ -46,3 +47,4 @@ Sortie
 -------
 
 Un fichier  :code:`out.tex` compilable avec pdflatex.
+
