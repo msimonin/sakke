@@ -8,26 +8,26 @@
 
 \tiny
 
-{% for student in students %}
+{% for student in results.students %}
   \begin{minipage}{\textwidth}
     { \bf
     \begin{tabular}{|c|*{5}{c|}}
     \hline
-      {{general.name}} & {{ student.name }} & Note : {{ student.note }} & Rang : {{ student.rank }} & Moyenne : {{ general.avg }} & \'Ecart-type : {{ general.std }} \\
+      {{results.general.name}} & {{ student.name }} & Note : {{ student.note }} & Rang : {{ student.rank }} & Moyenne : {{ results.general.avg }} & \'Ecart-type : {{ results.general.std }} \\
     \hline
     \end{tabular}
     }
 
-    \begin{tabular}{|l|*{ {{ general.max_questions }} }{c|}}
+    \begin{tabular}{|l|*{ {{ results.general.max_questions }} }{c|}}
     {% for exo, data in student.exercices.items() %}
         \hline
-        & \multicolumn{ {{ general.max_questions }} }{c|}{ {{ exo }} } \\
+        & \multicolumn{ {{ results.general.max_questions }} }{c|}{ {{ exo }} } \\
         \hline
         Questions & {{ data.bar.title | join('&') }} 
         {% if data.bar.extra > 0 %} & \multicolumn{ {{ data.bar.extra }} }{c}{} {% endif %} \\ 
         \cline{1-{{ data.bar.title | length + 1 }} }
         
-        % {{ data.bar.extra }} {{ general.max_questions }} {{ data.bar.title | length }}
+        % {{ data.bar.extra }} {{ results.general.max_questions }} {{ data.bar.title | length }}
 
         Réussite & {{ data.bar.success | join('&') }} 
         {% if data.bar.extra > 0 %} & \multicolumn{ {{ data.bar.extra }} }{c}{} {% endif %} \\

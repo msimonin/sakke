@@ -1,11 +1,15 @@
 """SaKKe: utilitaire de statistiques de devoirs
 
-usage: sakke [--name=<name>] <exercice:bareme> ...
+usage: sakke [--name=<name>] [--transform=<transform>] <exercice:bareme> ...
 
 Options:
   -h --help       Montre l'aide
   --name=<name>   Nom du devoir. [default: -]
+  --transform=<transform>   Transformation à appliquer sur la note finale.
+                            C'est une expression x représente la note.
+                            [default: x]
   exercice:bareme Chemin vers les exercice/bareme separés par :
+
 """
 import csv
 import sys
@@ -37,6 +41,7 @@ def main():
     print(arguments)
     exercices_baremes = arguments['<exercice:bareme>']
     name = arguments['--name']
+    transform = lambda x: eval(arguments['--transform'])
     if len(exercices_baremes) < 1:
         sys.exit(0)
 
@@ -119,7 +124,7 @@ def main():
                 students[name].setdefault('sum', 0)
                 students[name]['sum'] = s + students[name]['sum']
                 students[name].setdefault('note', 0)
-                students[name]['note'] = round(students[name]['sum']/general['total']*NOTE, 1)
+                students[name]['note'] = transform(round(students[name]['sum']/general['total']*NOTE, 1))
                 students[name]['total'] = general['total']
     
 
@@ -136,14 +141,19 @@ def main():
     general['avg'] = round(numpy.mean(general['notes']), 1)
     general['std'] = round(numpy.std(general['notes']), 1)
 
+    results = {
+        "bar": bar,
+        "general": general,
+        "students": ranked
+    }
     
+    # Rendering tex 
     env = Environment(loader=FileSystemLoader(searchpath=TEMPLATES_DIR))
     template = env.get_template('stats.tex.j2')
-    rendered_text = template.render(students=ranked, general=general, bar=bar)
-
+    rendered_text = template.render(results=results)
     with open('out.tex', 'w') as f:
         f.write(rendered_text.encode('UTF-8'))
-
+    
     
 if __name__ == '__main__':
     #arguments = docopt(__doc__, version=0.1)
