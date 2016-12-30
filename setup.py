@@ -7,6 +7,7 @@ setup(
     license='GPL-3.0',
     author='Matthieu Simonin',
     author_email='matthieu.simonin@gmail.com',
+    description='SaKKe est un utilitaire simple de génération de statistiques personnalisées de devoirs.',
     url='https://github.com/msimonin/sakke',
     packages=find_packages(),
     package_data = {'': ['templates/stats.tex.j2']},
