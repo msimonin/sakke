@@ -1,7 +1,7 @@
 SaKKe  :gift:
 ==============
 
-SaKKe est un utilitaire simple de génération de statistiques de devoirs.
+SaKKe est un utilitaire simple de génération de statistiques personnalisées de devoirs.
 
 Installation
 -------------
