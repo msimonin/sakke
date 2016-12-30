@@ -1,3 +1,7 @@
+## 0.0.4
+
+  * ajoute l'option `--option`
+
 ## 0.0.3
   
   * ajoute l'option `--transform`
