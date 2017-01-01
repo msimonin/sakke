@@ -71,7 +71,7 @@ var studentDimension = ndx.dimension(function (d) {
 table
   .dimension(distributionDimension)
   .group(function(d){ var r = Math.round(d.note/width) * width;
-    return (r - width / 2) + "-" + (r + width / 2);
+    return r + " : [ " + (r - width / 2) + ";" + (r + width / 2) + "]";
   })
   .size(100)
   .sortBy(function (d) {
