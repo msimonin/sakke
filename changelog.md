@@ -1,3 +1,7 @@
+## 0.0.5
+  
+  * ajoute des stats interactives en html
+
 ## 0.0.4
 
   * ajoute l'option `--option`
