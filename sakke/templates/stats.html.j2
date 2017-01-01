@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Sakke - Visualisation interactive</title>
+
+    <meta charset="UTF-8">
+
+    <link rel="stylesheet" type="text/css" href="https://dc-js.github.io/dc.js/css/dc.css"/>
+
+		<!-- Latest compiled and minified CSS -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+</head>
+<body>
+
+<div class="container">
+
+  <div id="distribution-chart" class="col-md-12">
+    <h1>Distribution des notes</h1>
+  </div>
+
+
+  <div id="table-head">
+    <h1>Table</h1>
+    <table id="table" class="table table-hover">
+    </table>
+  </div>
+
+</div>
+
+<script type="text/javascript" src="https://rawgit.com/d3/d3/v3.5.17/d3.min.js"></script>
+<script type="text/javascript" src="https://rawgit.com/square/crossfilter/v1.3.12/crossfilter.min.js"></script>
+<script type="text/javascript" src="https://sharelatex.irisa.fr/irisa/graphs/js/dc.js"></script>
+
+
+<script type="text/javascript">
+var data = {{ results }}
+
+// les graphiques
+var distributionBarChart = dc.barChart('#distribution-chart');
+var table = dc.dataTable('#table');
+
+
+var ndx = crossfilter(data.students);
+
+var max = d3.max(data.students, function(d){return d.note});
+
+var width = 1;
+var distributionDimension = ndx.dimension(function(d) {return Math.round(d.note/width) * width; });
+var distributionBarGroup = distributionDimension.group();
+distributionBarChart
+  .width(600)
+  .height(300)
+  .dimension(distributionDimension)
+  .group(distributionBarGroup)
+  .x(d3.scale.linear().domain([0, max + 1]))
+  .elasticY(true)
+  .gap(0)
+  .round(dc.round.floor)
+  .alwaysUseRounding(true)
+  .centerBar(true)
+  .renderHorizontalGridLines(true)
+  .xAxisLabel("Note")
+  .yAxisLabel("# Etudiants")
+
+
+var studentDimension = ndx.dimension(function (d) {
+  return d.name;
+});
+
+table
+  .dimension(distributionDimension)
+  .group(function(d){ var r = Math.round(d.note/width) * width;
+    return (r - width / 2) + "-" + (r + width / 2);
+  })
+  .size(100)
+  .sortBy(function (d) {
+    console.log(d.note);
+    return d;
+  })
+
+  .columns(['name', 'note'])
+  .on('renderlet', function (table) {
+    table.selectAll('.dc-table-group').classed('info', true);
+  });
+
+
+
+dc.renderAll();
+
+</script>
+
+</body>
+</html>
+

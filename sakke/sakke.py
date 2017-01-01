@@ -1,3 +1,4 @@
+# coding: utf8
 """SaKKe: utilitaire de statistiques de devoirs
 
 usage: sakke [--name=<name>] [--transform=<transform>] [--option=<name:value> ...] <exercice:bareme> ...
@@ -157,7 +158,8 @@ def main():
     general['notes'] = numpy.array(list(map(lambda e: e['note'], students.values())))
     general['avg'] = round(numpy.mean(general['notes']), 1)
     general['std'] = round(numpy.std(general['notes']), 1)
-
+    # gets back a list to be json-serializable
+    general['notes'] = list(general['notes'])
     results = {
         "bar": bar,
         "general": general,
@@ -170,7 +172,13 @@ def main():
     rendered_text = template.render(results=results, options=options)
     with open('out.tex', 'w') as f:
         f.write(rendered_text.encode('UTF-8'))
-    
+
+    template = env.get_template('stats.html.j2')
+    rendered_text = template.render(results=json.dumps(results), options=options)
+    with open('out.html', 'w') as f:
+        f.write(rendered_text.encode('UTF-8'))
+   
+
     
 if __name__ == '__main__':
     #arguments = docopt(__doc__, version=0.1)

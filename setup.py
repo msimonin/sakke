@@ -10,7 +10,7 @@ setup(
     url='https://github.com/msimonin/sakke',
     description='SaKKe est un utilitaire simple de génération de statistiques personnalisées de devoirs.',
     packages=find_packages(),
-    package_data = {'': ['templates/stats.tex.j2']},
+    package_data = {'': ['templates/stats.tex.j2', 'templates/stats.html.j2']},
     install_requires=[
         'docopt==0.6.2',
         'Jinja2==2.8',
