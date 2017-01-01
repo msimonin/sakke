@@ -46,5 +46,5 @@ Un fichier de barème ajuste la note finale.
 Sortie
 -------
 
-Un fichier  :code:`out.tex` compilable avec pdflatex.
-
+* Un fichier  :code:`out.tex` compilable avec pdflatex.
+* Un fichier  :code:`out.html` ouvrable avec un navigateur (décent)
