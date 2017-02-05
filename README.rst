@@ -28,7 +28,7 @@ Un fichier de barème ajuste la note finale.
   sakke exercice_1 exercice_2 ...
 
 `exercice_n` est un fichier csv comprenant 2 parties : le barème et les résultats par élèves.
-Il est exporté en respectant le format du fichier `ods` donnée en exemple : https://github.com/msimonin/sakke/blob/master/exemple.ods?raw=true
+Il est exporté en respectant le format du fichier `ods` donnée en `exemple <https://github.com/msimonin/sakke/blob/master/exemple.ods?raw=true>`_.
 
 Un exemple
 ----------
@@ -48,4 +48,9 @@ Sortie
 -------
 
 * Un fichier  :code:`out.tex` compilable avec pdflatex.
+
+.. image:: pdf.png
+
 * Un fichier  :code:`out.html` ouvrable avec un navigateur (décent)
+
+.. image:: html.png
