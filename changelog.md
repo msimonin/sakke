@@ -1,6 +1,6 @@
 ## 0.0.6
 
-  * TODO
+  * change le format d'entrée : cf exemple.ods
 
 ## 0.0.5
   

@@ -10,12 +10,11 @@ Installation
 .. code-block:: bash
 
   [sudo] pip install -U sakke [--user]
-  
 
 Usage et hypothèses
 ----------------------
 
-Afficher l'aide : 
+Afficher l'aide :
 
 .. code-block:: bash
 
@@ -26,22 +25,24 @@ Un fichier de barème ajuste la note finale.
 
 .. code-block:: bash
 
-  sakke exercice_1:bareme_1 exercice_2:bareme_2 ...
+  sakke exercice_1 exercice_2 ...
 
-* exercice est un fichier csv : 
+`exercice_n` est un fichier csv comprenant 2 parties : le barème et les résultats par élèves.
+Il est exporté en respectant le format du fichier `ods` donnée en exemple.
 
-.. code-block:: none
+Un exemple
+----------
 
-  nom1, prenom1, note11, note12,...
-  nom2, prenom2, note21, note22,...
+* Télécharger le fichier d'exemple
+* Exporter chacune des feuilles `problème 1`, `problème 2`, `problème 3` en csv respectivement en les fichier
+  `pb1.csv`, `pb2.csv`, `pb3.csv`
+* Générer les fiches de résultats :
 
+.. code-block:: bash
 
-* bareme est un fichier csv : 
-
-.. code-block:: none
-
-   intitule1, intitule2, ...
-   bareme1, bareme2, ...
+  sakke --name=Exemple pb1.csv pb2.csv pb2.csv
+  pdflatex out.tex
+  <open> out.pdf
 
 Sortie
 -------

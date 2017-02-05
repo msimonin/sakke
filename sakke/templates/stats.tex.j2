@@ -2,7 +2,7 @@
 \usepackage[{{ options.latex_geometry_options }}]{geometry}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-
+\pagestyle{empty}
 \begin{document}
 
 \{{ options.latex_font_size }}
@@ -23,14 +23,14 @@
         % nom de l'exercice
         & \multicolumn{ {{ results.general.max_questions + 1 }} }{c|}{ {{ exo }} } \\
         \hline
-        
-        Questions & {{ data.bar.title | join('&') }} 
-        & \multicolumn{ {{ data.bar.extra + 1 }} }{c}{}\\ 
+
+        Questions & {{ data.bar.title | join('&') }}
+        & \multicolumn{ {{ data.bar.extra + 1 }} }{c}{}\\
         \cline{1-{{ data.bar.title | length + 1 }} }
-        
+
         % {{ data.bar.extra }} {{ results.general.max_questions }} {{ data.bar.title | length }}
 
-        Réussite & {{ data.bar.success | join('&') }} 
+        Réussite & {{ data.bar.success | join('&') }}
         & \multicolumn{ {{ data.bar.extra + 1 }} }{c}{}\\
         \cline{1-{{ data.bar.title | length + 1 }} }
 
@@ -38,7 +38,7 @@
         {% if data.bar.extra > 0 %} & \multicolumn{ {{ data.bar.extra }} }{c}{} {% endif %}\\
         \cline{1-{{ data.bar.title | length + 1 }} }
 
-        Sur la copie & {{ data.raw | join('&') }} 
+        Sur la copie & {{ data.raw | join('&') }}
         & \multicolumn{ {{ data.bar.extra + 1 }} }{c}{}\\
         \cline{1-{{ data.bar.title | length + 1 }} }
 
