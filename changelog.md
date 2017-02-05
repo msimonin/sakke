@@ -1,4 +1,4 @@
-## 0.0.6
+## 1.0.0
 
   * change le format d'entrée : cf exemple.ods
 
