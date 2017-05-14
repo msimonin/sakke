@@ -1,3 +1,7 @@
+## 1.0.2
+
+  * TODO
+
 ## 1.0.1
 
   * Ajout d'un meilleur message d'erreur en cas de mauvaise valeur
