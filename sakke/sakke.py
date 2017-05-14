@@ -40,14 +40,23 @@ OPTIONS = {
 }
 
 
-def clean(l):
+def clean_line(l):
     def el_clean(e):
         # replace hypothetic ',' by ','
         # e.g export from calc with french number formatting
         ec = e.replace(',', '.')
-        return float(ec)
-
-    return list(map(el_clean, l))
+        try:
+            result = float(ec)
+            return float(ec)
+        except Exception as e:
+            print("La valeur ->%s<- n'est pas valide" % ec)
+            raise e
+    try:
+        result = list(map(el_clean, l[2:]))
+        return result
+    except Exception as e:
+        print("Une erreur s'est glissée pour %s" % " ".join(l[0:2]))
+        raise e
 
 def main():
     arguments = docopt(__doc__, version=__version__)
@@ -107,7 +116,7 @@ def main():
         reader = list(csv.reader(baremefile, delimiter=','))
         bar.setdefault(exoname, {})
         bar[exoname]['title'] = reader[0][2:]
-        bar[exoname]['points'] = clean(reader[1][2:])
+        bar[exoname]['points'] = clean_line(reader[1][0:])
         bar[exoname]['total'] = sum(bar[exoname]['points'])
         bar[exoname]['sum'] = [0]*len(bar[exoname]['title'])
 
@@ -124,7 +133,7 @@ def main():
             students.setdefault(name, {})
             students[name].setdefault('exercices', {})
             students[name]['name'] = name
-            raw = clean(row[2:])
+            raw = clean_line(row[0:])
             corrected = raw[0:]
             # set raw results
             students[name]['exercices'].setdefault(exoname, {})
@@ -192,4 +201,8 @@ def main():
 if __name__ == '__main__':
     #arguments = docopt(__doc__, version=0.1)
     #(arguments['<exercice:bareme>'])
-    main()
+    try:
+        main()
+    except Exception as e:
+        print("Le programme s'est terminé avec une erreur : ")
+        print(e)

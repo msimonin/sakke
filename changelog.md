@@ -1,3 +1,7 @@
+## 1.0.1
+
+  * Ajout d'un meilleur message d'erreur en cas de mauvaise valeur
+
 ## 1.0.0
 
   * change le format d'entrée : cf exemple.ods
