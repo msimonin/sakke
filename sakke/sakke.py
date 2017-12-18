@@ -14,7 +14,7 @@ Options:
                                 * latex_documentclass_options:a4paper,10pt,landscape
                                 * latex_geometry_options:top=1cm,right=1cm,bottom=1cm,left=1cm
                                 * latex_font_size:tiny
-  exercice:bareme Chemin vers les exercice/bareme separés par :
+  exercice_bareme   Chemin vers les exercices (le format doit correspondre à l'exemple)
 
 """
 import csv
