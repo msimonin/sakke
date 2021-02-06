@@ -5,7 +5,7 @@ usage: sakke [--nom_devoir=<nom_devoir>] [--par_page=<par_page>] [--pages=<pages
 
 Options:
   -h --help                     Montre l'aide
-  --nom_devoir=<nom_devoir>     Nom du devoir. [default: -]
+  --nom_devoir=<nom_devoir>     Nom du devoir.
   --pages=<pages>               Combien de pages à considérer dans la feuille de calcul
                                 (en commençant à gauche) [default: -1]
   --par_page=<par_page>         Nombre de résultats par page [default: 3]
@@ -211,7 +211,7 @@ def aggrege(devoir_df, id_eleve, transform):
         (devoir_par_eleve[LABEL_EN_REALITE] / devoir_par_eleve[LABEL_BAREME]) * NOTE
     ).apply(transform)
     # add the rank
-    devoir_par_eleve[LABEL_RANG] = devoir_par_eleve[LABEL_TRANSFORM].rank().astype(int)
+    devoir_par_eleve[LABEL_RANG] = devoir_par_eleve[LABEL_TRANSFORM].rank(ascending=False, method="min").astype(int)
 
     return devoir_par_eleve, probleme_par_eleve
 
@@ -261,6 +261,8 @@ def generate_par_eleve(
         #      sur la copie    2.000000  3.000000  4.000000  3.000000  4.000000  4.000000  0.000000  0.000000  4.000000  0.000000  0.000000  0.000000
         _par_question = (
             devoir_df[devoir_df[LABEL_PROBLEME] == probleme]
+            # on ne veut pas ça dans la sortie et c'est pas forcément facile à supprimer après
+            .drop(LABEL_REUSSITE_ELEVE, axis="columns")
             .drop(LABEL_PROBLEME, axis="columns")
             .melt(
                 id_vars=[LABEL_QUESTION],
@@ -281,6 +283,7 @@ def generate_par_eleve(
         for student in students:
             questions_par_eleve.setdefault(student, [])
             result_student = _par_question.loc[student]
+            result_student.index.name=""
             # for output
             idx = list(student) + [probleme]
             # on change le nom associé aux colonnes  pour l'affichage du tableau
@@ -288,8 +291,12 @@ def generate_par_eleve(
             # et 10 le total possible
             note = probleme_par_eleve.loc[[idx]][LABEL_EN_REALITE].squeeze()
             total = result_student.sum(axis="columns")[LABEL_BAREME]
+            # pandas me garde un nom que je ne veux pas à l'export
+            # je mets un espace du coup
+            result_student[" "] = f"{probleme} / ({note}/{total})"
+            result_student = result_student.set_index(" ", append=True).swaplevel(0, 1)
             result_student.index.name = ""
-            result_student.columns.name = f"{probleme}({note}/{total})"
+            result_student.columns.name = ""
             questions_par_eleve[student].append(result_student)
 
     entete_par_eleve = {}
@@ -336,6 +343,8 @@ def main():
     print(arguments)
     exercices_baremes = arguments["<exercice_bareme>"]
     nom_devoir = arguments["--nom_devoir"]
+    if nom_devoir is None:
+        nom_devoir = Path(exercices_baremes).with_suffix("")
     transform = lambda x: eval(arguments["--transform"])
     par_page = int(arguments["--par_page"])
     pages = int(arguments["--pages"])

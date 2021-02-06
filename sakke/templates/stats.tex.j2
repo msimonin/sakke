@@ -3,6 +3,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{booktabs}
+\usepackage{multirow}
 \pagestyle{empty}
 \begin{document}
 
@@ -20,7 +21,7 @@
   }
 
 {% for result in results %}
-{{ result.to_latex(float_format="%.2f", index_names=False) }}
+{{ result.to_latex(float_format="%.2f", index_names=False, multirow=True) }}
 {% endfor %}
 
 \vspace{0.3cm}
