@@ -13,17 +13,27 @@
 \vfill
 
   { \bf
-  \begin{tabular}{|c|*{6}{c|}}
-  \hline
+  \begin{tabular}{ c *{6}{c}}
     {{entete_par_eleve[eleve].nom_devoir}} & {{entete_par_eleve[eleve].nom }} & {{ entete_par_eleve[eleve].rang }} & {{ entete_par_eleve[eleve].note }} & {{ entete_par_eleve[eleve].moyenne }} & {{ entete_par_eleve[eleve].moyenne }} & {{ entete_par_eleve[eleve].ecart_type }} \\
   \hline
   \end{tabular}
   }
 
+  { \bf
+  \begin{tabular}{ c *{ {{ synthese_probleme_par_eleve[eleve] | length }} }{c}}
+  {% for result in synthese_probleme_par_eleve[eleve] %}
+  {{ result }} &
+  {% if loop.index == loop.length %}
+  {{ result }} \\
+  {% endif %}
+  {% endfor %}
+  \end{tabular}
+  }
 {% for result in results %}
+\vfill
 {{ result.to_latex(float_format="%.2f", index_names=False, multirow=True) }}
+\vfill
 {% endfor %}
-
 \vspace{0.3cm}
 \hrule
 \vspace{0.3cm}

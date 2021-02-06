@@ -20,9 +20,10 @@ Options:
   exercice_bareme               Chemin vers une feuille de calcul au bon format
 
 """
+from collections import defaultdict
 import sys
 from pathlib import Path
-from typing import Tuple
+from typing import DefaultDict, Tuple
 
 import pandas as pd
 from docopt import docopt
@@ -247,6 +248,7 @@ def generate_par_eleve(
 
     par_question = dict()
     questions_par_eleve = dict()
+    synthese_probleme_par_eleve = defaultdict(list)
     for probleme in problemes:
         # for this problem compute the result for each student
         # get the type of note as values
@@ -283,7 +285,6 @@ def generate_par_eleve(
         for student in students:
             questions_par_eleve.setdefault(student, [])
             result_student = _par_question.loc[student]
-            result_student.index.name=""
             # for output
             idx = list(student) + [probleme]
             # on change le nom associé aux colonnes  pour l'affichage du tableau
@@ -293,10 +294,7 @@ def generate_par_eleve(
             total = result_student.sum(axis="columns")[LABEL_BAREME]
             # pandas me garde un nom que je ne veux pas à l'export
             # je mets un espace du coup
-            result_student[" "] = f"{probleme} / ({note}/{total})"
-            result_student = result_student.set_index(" ", append=True).swaplevel(0, 1)
-            result_student.index.name = ""
-            result_student.columns.name = ""
+            synthese_probleme_par_eleve[student].append(f"{probleme}: {note:.2f}/{total}")
             questions_par_eleve[student].append(result_student)
 
     entete_par_eleve = {}
@@ -315,6 +313,7 @@ def generate_par_eleve(
     template = env.get_template("stats.tex.j2")
     rendered_text = template.render(
         questions_par_eleve=questions_par_eleve,
+        synthese_probleme_par_eleve=synthese_probleme_par_eleve,
         entete_par_eleve=entete_par_eleve,
         par_page=par_page,
         options=options,
