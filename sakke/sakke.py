@@ -359,20 +359,36 @@ def plot(devoir_df, devoir_par_eleve, probleme_par_eleve, metadata):
     import seaborn as sns
     import matplotlib.pyplot as plt
 
-    plt.title(metadata["nom_devoir"])
-    sns.histplot(data=devoir_par_eleve, x=LABEL_TRANSFORM)
-    plt.savefig("devoir.pdf")
-    plt.clf()
-    plt.title(metadata["nom_devoir"])
-    sns.stripplot(
-        data=probleme_par_eleve.reset_index(), x=LABEL_PROBLEME, y=LABEL_REUSSITE_NORM
-    ).set(title=metadata["nom_devoir"])
-    plt.savefig("problemes.pdf")
-    plt.clf()
-    sns.stripplot(
-        data=devoir_df, x=LABEL_QUESTION, y=LABEL_REUSSITE_ELEVE, hue=LABEL_PROBLEME
+    fig = plt.figure(constrained_layout=True, figsize=(20, 20))
+    gs = fig.add_gridspec(2, 2)
+    ax1 = fig.add_subplot(gs[0, 0])
+    ax1.set_title("Distribution des notes")
+    ax2 = fig.add_subplot(gs[0, 1])
+    ax2.set_title("Distribution par problème")
+    ax3 = fig.add_subplot(gs[1, :])
+    ax3.set_title("Distribution par question")
+
+    sns.histplot(data=devoir_par_eleve, x=LABEL_TRANSFORM, ax=ax1)
+    sns.boxplot(
+        data=probleme_par_eleve.reset_index(),
+        x=LABEL_PROBLEME,
+        y=LABEL_REUSSITE_NORM,
+        ax=ax2,
+        boxprops=dict(facecolor=(0, 0, 0, 0)),
     )
-    plt.savefig("questions.pdf")
+    sns.stripplot(
+        data=probleme_par_eleve.reset_index(),
+        x=LABEL_PROBLEME,
+        y=LABEL_REUSSITE_NORM,
+        ax=ax2,
+    )
+    devoir_df["x"] = devoir_df.apply(
+        lambda x: f"{x[LABEL_PROBLEME]} {x[LABEL_QUESTION]}", axis="columns"
+    )
+    sns.boxplot(
+        data=devoir_df, x="x", y=LABEL_REUSSITE_ELEVE, hue=LABEL_PROBLEME, ax=ax3
+    )
+    plt.savefig("visu.pdf")
 
 
 def main():
