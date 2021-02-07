@@ -1,6 +1,10 @@
-## 1.0.3
+## 2.0.1
 
-  * TODO
+* `nom_devoir` est détecté à partir du nom du fichier
+## 2.0.0
+
+  * utilise pandas
+  * plus de stats html mais un pdf (seaborn)
 
 ## 1.0.2
 
@@ -15,7 +19,7 @@
   * change le format d'entrée : cf exemple.ods
 
 ## 0.0.5
-  
+
   * ajoute des stats interactives en html
 
 ## 0.0.4

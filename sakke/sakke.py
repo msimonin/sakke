@@ -212,7 +212,11 @@ def aggrege(devoir_df, id_eleve, transform):
         (devoir_par_eleve[LABEL_EN_REALITE] / devoir_par_eleve[LABEL_BAREME]) * NOTE
     ).apply(transform)
     # add the rank
-    devoir_par_eleve[LABEL_RANG] = devoir_par_eleve[LABEL_TRANSFORM].rank(ascending=False, method="min").astype(int)
+    devoir_par_eleve[LABEL_RANG] = (
+        devoir_par_eleve[LABEL_TRANSFORM]
+        .rank(ascending=False, method="min")
+        .astype(int)
+    )
 
     return devoir_par_eleve, probleme_par_eleve
 
@@ -294,7 +298,18 @@ def generate_par_eleve(
             total = result_student.sum(axis="columns")[LABEL_BAREME]
             # pandas me garde un nom que je ne veux pas à l'export
             # je mets un espace du coup
-            synthese_probleme_par_eleve[student].append(f"{probleme}: {note:.2f}/{total}")
+            synthese_probleme_par_eleve[student].append(
+                f"{probleme}: {note:.2f}/{total}"
+            )
+            # On réordonne un peu
+            result_student = result_student.reindex(
+                [
+                    LABEL_BAREME,
+                    LABEL_SUR_LA_COPIE,
+                    LABEL_EN_REALITE,
+                    LABEL_REUSSITE_CLASSE,
+                ]
+            )
             questions_par_eleve[student].append(result_student)
 
     entete_par_eleve = {}

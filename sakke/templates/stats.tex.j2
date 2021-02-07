@@ -22,10 +22,12 @@
   { \bf
   \begin{tabular}{ c *{ {{ synthese_probleme_par_eleve[eleve] | length }} }{c}}
   {% for result in synthese_probleme_par_eleve[eleve] %}
-  {{ result }} &
   {% if loop.index == loop.length %}
   {{ result }} \\
+  {% else %}
+  {{ result }} &
   {% endif %}
+
   {% endfor %}
   \end{tabular}
   }
