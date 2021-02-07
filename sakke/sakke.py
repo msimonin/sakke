@@ -142,6 +142,7 @@ def read_excel(spreadsheet: str, pages: int) -> Tuple[pd.DataFrame, pd.DataFrame
     #          7c           0.5
     #          7d           1.0
     #          7 e          2.0
+    sanity_check(devoir_df, bareme_df)
     return devoir_df, bareme_df
 
 
@@ -221,6 +222,26 @@ def aggrege(devoir_df, id_eleve, transform):
     return devoir_par_eleve, probleme_par_eleve
 
 
+def sanity_check(devoir_df, bareme_df):
+    # pas de nan dans le bareme
+    nas = bareme_df[bareme_df.isna().values]
+    if not nas.empty:
+        print(nas)
+        raise ValueError("Il y des données non renseignées dans le bareme")
+    nas = devoir_df[devoir_df[LABEL_SUR_LA_COPIE].isna()]
+    if not nas.empty:
+        print(nas)
+        raise ValueError("Il y des données non renseignées dans le devoir")
+
+    r = devoir_df[
+        (devoir_df[LABEL_SUR_LA_COPIE] < 0)
+        | (devoir_df[LABEL_SUR_LA_COPIE] > BAREME_TOTAL)
+    ]
+    if not r.empty:
+        print(r)
+        raise ValueError("Il y a des valeurs non acceptables dans le devoir")
+
+
 def all_in_one(exercices_baremes, pages, nom_devoir, transform):
     devoir_df, bareme_df = read_excel(exercices_baremes, pages)
     # get the indexes to be agnostic to the column name in excel
@@ -246,9 +267,6 @@ def generate_par_eleve(
     # tous les problème du devoir
     problemes = devoir_df[LABEL_PROBLEME].unique()
     students = devoir_df.index.unique().values
-
-    # TODO sanity check
-    # - chaque élève a des notes pour chaque exercice
 
     par_question = dict()
     questions_par_eleve = dict()
@@ -337,7 +355,7 @@ def generate_par_eleve(
         f.write(rendered_text)
 
 
-def plot(devoir_par_eleve, probleme_par_eleve, metadata):
+def plot(devoir_df, devoir_par_eleve, probleme_par_eleve, metadata):
     import seaborn as sns
     import matplotlib.pyplot as plt
 
@@ -350,6 +368,11 @@ def plot(devoir_par_eleve, probleme_par_eleve, metadata):
         data=probleme_par_eleve.reset_index(), x=LABEL_PROBLEME, y=LABEL_REUSSITE_NORM
     ).set(title=metadata["nom_devoir"])
     plt.savefig("problemes.pdf")
+    plt.clf()
+    sns.stripplot(
+        data=devoir_df, x=LABEL_QUESTION, y=LABEL_REUSSITE_ELEVE, hue=LABEL_PROBLEME
+    )
+    plt.savefig("questions.pdf")
 
 
 def main():
@@ -377,7 +400,7 @@ def main():
     generate_par_eleve(
         devoir_df, devoir_par_eleve, probleme_par_eleve, metadata, par_page, options
     )
-    plot(devoir_par_eleve, probleme_par_eleve, metadata)
+    plot(devoir_df, devoir_par_eleve, probleme_par_eleve, metadata)
 
 
 if __name__ == "__main__":
