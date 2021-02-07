@@ -65,3 +65,7 @@ Sortie
 * Un fichier  :code:`out.tex` compilable avec pdflatex.
 
 .. image:: pdf.png
+
+* Un fichier avec quelques graphiques:
+
+.. image:: plot.png
