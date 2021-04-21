@@ -1,7 +1,7 @@
 # coding: utf8
 """SaKKe: utilitaire de statistiques de devoirs
 
-usage: sakke [--nom_devoir=<nom_devoir>] [--par_page=<par_page>] [--pages=<pages>] [--transform=<transform>] [--option=<name:value> ...] <exercice_bareme>
+usage: sakke [--nom_devoir=<nom_devoir>] [--par_page=<par_page>] [--pages=<pages>] [--transform=<transform>] [--option=<name:value> ...] [--split] [--outdir=<outdir>] <exercice_bareme>
 
 Options:
   -h --help                     Montre l'aide
@@ -17,6 +17,8 @@ Options:
                                     * latex_documentclass_options:a4paper,10pt,landscape
                                     * latex_geometry_options:top=1cm,right=1cm,bottom=1cm,left=1cm
                                     * latex_font_size:tiny
+  --split                       Génère un fichier par élève
+  --outdir=<outdir>             Répertoire de sortie [default: out]
   exercice_bareme               Chemin vers une feuille de calcul au bon format
 
 """
@@ -96,6 +98,7 @@ def read_excel(spreadsheet: str, pages: int) -> Tuple[pd.DataFrame, pd.DataFrame
         # Nom, Prénom are the two columns that identifies the student.
         students_index = raw_results.columns.tolist()[0:2]
         students = raw_results.set_index(students_index)
+        students.astype("float64")
         students.columns = bareme.index
         tidy = students.melt(
             ignore_index=False, var_name=LABEL_QUESTION, value_name=LABEL_SUR_LA_COPIE
@@ -262,7 +265,14 @@ def all_in_one(exercices_baremes, pages, nom_devoir, transform):
 
 
 def generate_par_eleve(
-    devoir_df, devoir_par_eleve, probleme_par_eleve, metadata, par_page, options
+    devoir_df,
+    devoir_par_eleve,
+    probleme_par_eleve,
+    metadata,
+    par_page,
+    options,
+    split,
+    outdir,
 ):
     # tous les problème du devoir
     problemes = devoir_df[LABEL_PROBLEME].unique()
@@ -341,18 +351,37 @@ def generate_par_eleve(
             ecart_type=f"écart-type: {metadata['ecart_type']:.2f}",
         )
 
+    # on créé le répertoire de sortie
+    output_dir = Path(outdir)
+    output_dir.mkdir(parents=True, exist_ok=True)
     # Rendering tex
     env = Environment(loader=FileSystemLoader(searchpath=TEMPLATES_DIR))
     template = env.get_template("stats.tex.j2")
-    rendered_text = template.render(
-        questions_par_eleve=questions_par_eleve,
-        synthese_probleme_par_eleve=synthese_probleme_par_eleve,
-        entete_par_eleve=entete_par_eleve,
-        par_page=par_page,
-        options=options,
-    )
-    with open("out.tex", "w") as f:
-        f.write(rendered_text)
+    if split:
+        # on génère un fichier par élève
+        for student in students:
+            rendered_text = template.render(
+                questions_par_eleve=dict(student=questions_par_eleve[student]),
+                synthese_probleme_par_eleve=dict(
+                    student=synthese_probleme_par_eleve[student]
+                ),
+                entete_par_eleve=dict(student=entete_par_eleve[student]),
+                par_page=1,
+                options=options,
+            )
+            output_path = output_dir / f"{student[0]}_{student[1]}.tex"
+            output_path.write_text(rendered_text)
+    else:
+        # on génère tout
+        rendered_text = template.render(
+            questions_par_eleve=questions_par_eleve,
+            synthese_probleme_par_eleve=synthese_probleme_par_eleve,
+            entete_par_eleve=entete_par_eleve,
+            par_page=par_page,
+            options=options,
+        )
+        output_path = output_dir / "out.tex"
+        output_path.write_text(rendered_text)
 
 
 def plot(devoir_df, devoir_par_eleve, probleme_par_eleve, metadata):
@@ -406,6 +435,8 @@ def main():
     options.update(OPTIONS)
     options.update(dict(map(lambda x: x.split(":"), arguments["--option"])))
     print(options)
+    split = arguments["--split"]
+    outdir = arguments["--outdir"]
     if len(exercices_baremes) < 1:
         sys.exit(0)
 
@@ -414,7 +445,14 @@ def main():
     )
 
     generate_par_eleve(
-        devoir_df, devoir_par_eleve, probleme_par_eleve, metadata, par_page, options
+        devoir_df,
+        devoir_par_eleve,
+        probleme_par_eleve,
+        metadata,
+        par_page,
+        options,
+        split,
+        outdir,
     )
     plot(devoir_df, devoir_par_eleve, probleme_par_eleve, metadata)
 
