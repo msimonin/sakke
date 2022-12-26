@@ -1,7 +1,7 @@
 # coding: utf8
 """SaKKe: utilitaire de statistiques de devoirs
 
-usage: sakke [--nom_devoir=<nom_devoir>] [--par_page=<par_page>] [--pages=<pages>] [--transform=<transform>] [--option=<name:value> ...] [--split] [--outdir=<outdir>] <exercice_bareme>
+usage: sakke [--nom_devoir=<nom_devoir>] [--par_page=<par_page>] [--pages=<pages>] [--transform=<transform>] [--moyenne=<moyenne>] [--ecart_type=<ecart_type>] [--option=<name:value> ...] [--split] [--outdir=<outdir>] <exercice_bareme>
 
 Options:
   -h --help                     Montre l'aide
@@ -12,6 +12,8 @@ Options:
   --transform=<transform>       Transformation à appliquer sur la note finale.
                                 C'est une expression où x représente la note.
                                 [default: x]
+  --moyenne=<moyenne>           Moyenne après normalisation
+  --ecart_type=<ecart_type>     Ecart-type après normalisation
   --option=<name:value>         Option pour le rendu. Peut-être répétée.
                                 Valeurs par défaut des options suportées
                                     * latex_documentclass_options:a4paper,10pt,landscape
@@ -62,7 +64,8 @@ LABEL_REUSSITE_CLASSE = "réussite classe"
 LABEL_REUSSITE_NORM = "réussite normalisée"
 LABEL_EN_REALITE = "en réalité"
 LABEL_SUR_LA_COPIE = "sur la copie"
-LABEL_TRANSFORM = "note finale"
+LABEL_TRANSFORM = "note transformée"
+LABEL_NORMALISATION = "note finale"
 LABEL_RANG = "rang"
 
 
@@ -190,7 +193,7 @@ def enrichir(devoir_df, bareme_df):
     return devoir_df
 
 
-def aggrege(devoir_df, id_eleve, transform):
+def aggrege(devoir_df, id_eleve, transform, moyenne, ecart_type):
     # Get some global statistics
     # probleme_par_eleve
     #                                sur la copie  barème  réussite élève  en réalité  réussite classe
@@ -215,9 +218,20 @@ def aggrege(devoir_df, id_eleve, transform):
     devoir_par_eleve[LABEL_TRANSFORM] = (
         (devoir_par_eleve[LABEL_EN_REALITE] / devoir_par_eleve[LABEL_BAREME]) * NOTE
     ).apply(transform)
+
+    mean = devoir_par_eleve[LABEL_TRANSFORM].mean()
+    std = devoir_par_eleve[LABEL_TRANSFORM].std()
+    if moyenne is None:
+        moyenne = mean
+    if ecart_type is None:
+        ecart_type = std
+    devoir_par_eleve[LABEL_NORMALISATION] = (
+        (devoir_par_eleve[LABEL_TRANSFORM] - mean) / std
+    ) * float(ecart_type) + float(moyenne)
+
     # add the rank
     devoir_par_eleve[LABEL_RANG] = (
-        devoir_par_eleve[LABEL_TRANSFORM]
+        devoir_par_eleve[LABEL_NORMALISATION]
         .rank(ascending=False, method="min")
         .astype(int)
     )
@@ -245,21 +259,23 @@ def sanity_check(devoir_df, bareme_df):
         raise ValueError("Il y a des valeurs non acceptables dans le devoir")
 
 
-def all_in_one(exercices_baremes, pages, nom_devoir, transform):
+def all_in_one(exercices_baremes, pages, nom_devoir, transform, moyenne, ecart_type):
     devoir_df, bareme_df = read_excel(exercices_baremes, pages)
     # get the indexes to be agnostic to the column name in excel
     id_eleve = devoir_df.index.names
 
     devoir_df = enrichir(devoir_df, bareme_df)
 
-    devoir_par_eleve, probleme_par_eleve = aggrege(devoir_df, id_eleve, transform)
+    devoir_par_eleve, probleme_par_eleve = aggrege(
+        devoir_df, id_eleve, transform, moyenne, ecart_type
+    )
 
     # quelques stats globales
     metadata = dict(
         id_eleve=id_eleve,
         nom_devoir=f"{nom_devoir}",
-        moyenne=devoir_par_eleve[LABEL_TRANSFORM].describe()["mean"],
-        ecart_type=devoir_par_eleve[LABEL_TRANSFORM].describe()["std"],
+        moyenne=devoir_par_eleve[LABEL_NORMALISATION].describe()["mean"],
+        ecart_type=devoir_par_eleve[LABEL_NORMALISATION].describe()["std"],
     )
     return devoir_df, bareme_df, devoir_par_eleve, probleme_par_eleve, metadata
 
@@ -391,31 +407,39 @@ def plot(devoir_df, devoir_par_eleve, probleme_par_eleve, metadata):
     fig = plt.figure(constrained_layout=True, figsize=(20, 20))
     gs = fig.add_gridspec(2, 2)
     ax1 = fig.add_subplot(gs[0, 0])
-    ax1.set_title("Distribution des notes")
-    ax2 = fig.add_subplot(gs[0, 1])
-    ax2.set_title("Distribution par problème")
-    ax3 = fig.add_subplot(gs[1, :])
-    ax3.set_title("Distribution par question")
+    ax1.set_title("Distribution des notes(après transform)")
+    ax1.set_xlim([0, 20])
 
-    sns.histplot(data=devoir_par_eleve, x=LABEL_TRANSFORM, ax=ax1)
+    ax2 = fig.add_subplot(gs[0, 1])
+    ax2.set_title("Distribution des notes(après normalisation)")
+    ax2.set_xlim([0, 20])
+
+    ax3 = fig.add_subplot(gs[1, 0])
+    ax3.set_title("Distribution par problème")
+
+    ax4 = fig.add_subplot(gs[1, 1])
+    ax4.set_title("Distribution par question")
+
+    sns.histplot(data=devoir_par_eleve, x=LABEL_TRANSFORM, ax=ax1, binwidth=1)
+    sns.histplot(data=devoir_par_eleve, x=LABEL_NORMALISATION, ax=ax2, binwidth=1)
     sns.boxplot(
         data=probleme_par_eleve.reset_index(),
         x=LABEL_PROBLEME,
         y=LABEL_REUSSITE_NORM,
-        ax=ax2,
+        ax=ax3,
         boxprops=dict(facecolor=(0, 0, 0, 0)),
     )
     sns.stripplot(
         data=probleme_par_eleve.reset_index(),
         x=LABEL_PROBLEME,
         y=LABEL_REUSSITE_NORM,
-        ax=ax2,
+        ax=ax3,
     )
     devoir_df["x"] = devoir_df.apply(
         lambda x: f"{x[LABEL_PROBLEME]} {x[LABEL_QUESTION]}", axis="columns"
     )
     sns.boxplot(
-        data=devoir_df, x="x", y=LABEL_REUSSITE_ELEVE, hue=LABEL_PROBLEME, ax=ax3
+        data=devoir_df, x="x", y=LABEL_REUSSITE_ELEVE, hue=LABEL_PROBLEME, ax=ax4
     )
     plt.savefig("visu.pdf")
 
@@ -428,6 +452,8 @@ def main():
     if nom_devoir is None:
         nom_devoir = Path(exercices_baremes).with_suffix("")
     transform = lambda x: eval(arguments["--transform"])
+    moyenne = arguments["--moyenne"]
+    ecart_type = arguments["--ecart_type"]
     par_page = int(arguments["--par_page"])
     pages = int(arguments["--pages"])
     # construction des options
@@ -441,7 +467,7 @@ def main():
         sys.exit(0)
 
     devoir_df, bareme_df, devoir_par_eleve, probleme_par_eleve, metadata = all_in_one(
-        exercices_baremes, pages, nom_devoir, transform
+        exercices_baremes, pages, nom_devoir, transform, moyenne, ecart_type
     )
 
     generate_par_eleve(
