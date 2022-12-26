@@ -362,7 +362,7 @@ def generate_par_eleve(
             nom_devoir=f"{metadata['nom_devoir']}",
             nom=f"{' '.join(student)}",
             rang=f"rang: {devoir_par_eleve.loc[student][LABEL_RANG]:.0f}",
-            note=f"note: {devoir_par_eleve.loc[student][LABEL_TRANSFORM]:.2f}",
+            note=f"note: {devoir_par_eleve.loc[student][LABEL_NORMALISATION]:.2f}",
             moyenne=f"moyenne: {metadata['moyenne']:.2f}",
             ecart_type=f"écart-type: {metadata['ecart_type']:.2f}",
         )
