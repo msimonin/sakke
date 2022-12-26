@@ -55,7 +55,7 @@ Un exemple
 
 .. code-block:: bash
 
-  sakke exemple.ods
+  sakke exemple.ods --pages 3
   pdflatex out.tex
   <open> out.pdf
 
