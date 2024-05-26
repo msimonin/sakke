@@ -245,14 +245,15 @@ def sanity_check(devoir_df, bareme_df):
     if not nas.empty:
         print(nas)
         raise ValueError("Il y des données non renseignées dans le bareme")
-    nas = devoir_df[devoir_df[LABEL_SUR_LA_COPIE].isna()]
-    if not nas.empty:
-        print(nas)
-        raise ValueError("Il y des données non renseignées dans le devoir")
+    # nas = devoir_df[devoir_df[LABEL_SUR_LA_COPIE].isna()]
+    # if not nas.empty:
+    #     print(nas)
+    #     raise ValueError("Il y des données non renseignées dans le devoir")
 
-    r = devoir_df[
-        (devoir_df[LABEL_SUR_LA_COPIE] < 0)
-        | (devoir_df[LABEL_SUR_LA_COPIE] > BAREME_TOTAL)
+    devoir_df_nna = devoir_df.dropna()
+    r = devoir_df_nna[
+        (devoir_df_nna[LABEL_SUR_LA_COPIE] < 0)
+        | (devoir_df_nna[LABEL_SUR_LA_COPIE] > BAREME_TOTAL)
     ]
     if not r.empty:
         print(r)
@@ -273,7 +274,7 @@ def all_in_one(exercices_baremes, pages, nom_devoir, transform, moyenne, ecart_t
     # quelques stats globales
     metadata = dict(
         id_eleve=id_eleve,
-        nom_devoir=f"{nom_devoir}",
+        nom_devoir=f"{nom_devoir}".replace("_", "\_"),
         moyenne=devoir_par_eleve[LABEL_NORMALISATION].describe()["mean"],
         ecart_type=devoir_par_eleve[LABEL_NORMALISATION].describe()["std"],
     )
@@ -342,8 +343,9 @@ def generate_par_eleve(
             total = result_student.sum(axis="columns")[LABEL_BAREME]
             # pandas me garde un nom que je ne veux pas à l'export
             # je mets un espace du coup
+            escaped_probleme = probleme.replace("_", "\_")
             synthese_probleme_par_eleve[student].append(
-                f"{probleme}: {note:.2f}/{total}"
+                f"{escaped_probleme}: {note:.2f}/{total}"
             )
             # On réordonne un peu
             result_student = result_student.reindex(

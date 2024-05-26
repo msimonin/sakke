@@ -32,7 +32,7 @@
   \end{tabular}
   }
 {% for result in results %}
-{{ result.to_latex(float_format="%.2f", index_names=False, multirow=True) }}
+{{ result.to_latex(na_rep="x", float_format="%.2f", index_names=False, multirow=True) }}
 {% endfor %}
 \vspace{0.3cm}
 \hrule
