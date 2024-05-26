@@ -181,7 +181,7 @@ def enrichir(devoir_df, bareme_df):
     )
 
     # add the global réussit to this df
-    reussite_df = devoir_df.groupby(by=[LABEL_PROBLEME, LABEL_QUESTION]).mean()[
+    reussite_df = devoir_df.fillna(0).groupby(by=[LABEL_PROBLEME, LABEL_QUESTION]).mean()[
         LABEL_REUSSITE_ELEVE
     ]
     reussite = reussite_builder(reussite_df)
